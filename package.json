@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "build": "echo 'No build required - using ES modules directly'",
+    "vercel-build": "echo 'Vercel build complete'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
