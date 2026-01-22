@@ -66,11 +66,6 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/config', configRoutes);
-import uploadRoutes from './routes/uploadRoutes.js';
-
-import { seedConfigs } from './controllers/configController.js';
-seedConfigs(); // Initialize configs on startup
-
 app.use('/api/upload', uploadRoutes);
 
 

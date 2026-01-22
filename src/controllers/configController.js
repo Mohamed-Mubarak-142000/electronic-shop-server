@@ -1,7 +1,16 @@
 import Configuration from '../models/Configuration.js';
 
+// Flag to track if configs have been initialized
+let configsInitialized = false;
+
 export const getConfigs = async (req, res) => {
     try {
+        // Lazy initialization - only seed configs on first GET request
+        if (!configsInitialized) {
+            await seedConfigs();
+            configsInitialized = true;
+        }
+        
         const configs = await Configuration.find({});
         const configMap = configs.reduce((acc, curr) => {
             acc[curr.key] = curr.value;
@@ -40,6 +49,10 @@ export const updateConfigs = async (req, res) => {
     }
 };
 
+/**
+ * Seeds default configurations (only if they don't exist)
+ * Now called lazily on first config request instead of on every startup
+ */
 export const seedConfigs = async () => {
     try {
         const defaults = [
@@ -53,15 +66,19 @@ export const seedConfigs = async () => {
             { key: 'maxProductImages', value: 4, group: 'product', description: 'Maximum Product Images' }
         ];
 
-        for (const config of defaults) {
-            await Configuration.findOneAndUpdate(
-                { key: config.key },
-                { $setOnInsert: config },
-                { upsert: true }
-            );
-        }
-        console.log('Configs initialized');
+        // Use bulkWrite for better performance in serverless
+        const operations = defaults.map(config => ({
+            updateOne: {
+                filter: { key: config.key },
+                update: { $setOnInsert: config },
+                upsert: true
+            }
+        }));
+
+        await Configuration.bulkWrite(operations);
+        console.log('Configs initialized lazily');
     } catch (error) {
-        console.error('Config seed error', error);
+        console.error('Config seed error:', error);
+        throw error;
     }
 };
