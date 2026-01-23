@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+
+# Development files
+.env.local
+.env.development
+
+# Test files
+test_scenarios.js
+
+# Git
+.git
+.gitignore
+
+# Editor
+.vscode
+.idea
+
+# Uploads (use Cloudinary in production)
+uploads/*
+
+# Documentation
+README.md
+DEPLOYMENT.md
+DEPLOY_CHECKLIST.md
+
+# Scripts
+seeder.js
+verify_api.sh
+
+# Logs
+*.log
+npm-debug.log*
