@@ -50,6 +50,7 @@ import portfolioRoutes from './routes/portfolioRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
 import scheduleRoutes from './routes/scheduleRoutes.js';
 import configRoutes from './routes/configRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 import Message from './models/Message.js';
 import jwt from 'jsonwebtoken';
 import User from './models/User.js';
