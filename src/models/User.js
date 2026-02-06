@@ -40,7 +40,9 @@ const userSchema = new mongoose.Schema({
     isHiring: { type: Boolean, default: false },
     // Online status and last seen
     isOnline: { type: Boolean, default: false },
-    lastSeen: { type: Date, default: Date.now }
+    lastSeen: { type: Date, default: Date.now },
+    // Track seen products for recommendations
+    seenProductIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

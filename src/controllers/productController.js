@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import User from '../models/User.js';
 
 // Helper to create slug
 const createSlug = (name) => {
@@ -207,6 +208,51 @@ export const deleteProduct = async (req, res) => {
         } else {
             res.status(404).json({ message: 'Product not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get recommended products (new for user)
+// @route   GET /api/products/recommended
+// @access  Private
+export const getRecommendedProducts = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const seenIds = user.seenProductIds || [];
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        // Find products created > 24h ago AND not in seenIds
+        let products = await Product.find({
+            isPublished: true,
+            createdAt: { $gte: oneDayAgo },
+            _id: { $nin: seenIds }
+        }).sort('-createdAt').limit(5);
+
+        // If fewer than 5 products found (or none), fall back to just latest unseen products
+        if (products.length < 5) {
+            const moreProducts = await Product.find({
+                isPublished: true,
+                _id: { $nin: [...seenIds, ...products.map(p => p._id)] }
+            }).sort('-createdAt').limit(5 - products.length);
+
+            products = [...products, ...moreProducts];
+        }
+
+        // Mark as seen
+        if (products.length > 0) {
+            const newIds = products.map(p => p._id);
+            await User.findByIdAndUpdate(user._id, {
+                $addToSet: { seenProductIds: { $each: newIds } }
+            });
+        }
+
+        res.json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
